@@ -76,7 +76,7 @@ class WaveNetBlock(torch.nn.Module):
             x = torch.tanh(x_tanh) * torch.sigmoid(x_sigmoid)
             x = skip_conv(x)
             skips.append(x)
-            x = (x + residual) * math.sqrt(0.5)
+            x = x + residual
         return x, skips
 
 
@@ -102,15 +102,14 @@ class Generator(torch.nn.Module):
 
     def forward(self, x):
         x = self.upsample(x)
-        skips, count = None, 0
+        skips = None
         for block in self.blocks:
             x, skip = block(x)
             if skips is None:
                 skips = sum(skip)
             else:
                 skips = skips + sum(skip)
-            count = count + len(skip)
-        x = skips / count
+        x = skips
         x = torch.relu(x)
         x = self.output(x)
         x = torch.tanh(x)
