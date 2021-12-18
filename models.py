@@ -1,5 +1,3 @@
-import math
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -37,7 +35,7 @@ class UpsampleNet(torch.nn.Module):
             residual = x
             x = conv(x)
             x = F.leaky_relu(x, LRELU_SLOPE)
-            x = (x + residual) * math.sqrt(0.5)
+            x = x + residual
         x = self.upsample_conv_1(x)
         x = F.leaky_relu(x, LRELU_SLOPE)
         x = self.upsample_conv_2(x)
