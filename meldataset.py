@@ -1,12 +1,13 @@
 import math
 import os
 import random
+
+import numpy as np
 import torch
 import torch.utils.data
-import numpy as np
+from librosa.filters import mel as librosa_mel_fn
 from librosa.util import normalize
 from scipy.io.wavfile import read
-from librosa.filters import mel as librosa_mel_fn
 
 MAX_WAV_VALUE = 32768.0
 
@@ -79,6 +80,7 @@ def mel_spectrogram(
         pad_mode="reflect",
         normalized=False,
         onesided=True,
+        return_complex=False,
     )
 
     spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))

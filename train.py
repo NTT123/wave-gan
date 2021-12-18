@@ -1,29 +1,31 @@
 import warnings
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
+import argparse
 import itertools
+import json
 import os
 import time
-import argparse
-import json
+
 import torch
-import torch.nn.functional as F
-from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data import DistributedSampler, DataLoader
 import torch.multiprocessing as mp
+import torch.nn.functional as F
 from torch.distributed import init_process_group
 from torch.nn.parallel import DistributedDataParallel
+from torch.utils.data import DataLoader, DistributedSampler
+from torch.utils.tensorboard import SummaryWriter
+
 from env import AttrDict, build_env
-from meldataset import MelDataset, mel_spectrogram, get_dataset_filelist
+from meldataset import MelDataset, get_dataset_filelist, mel_spectrogram
 from models import (
     Generator,
     MultiPeriodDiscriminator,
     MultiScaleDiscriminator,
+    discriminator_loss,
     feature_loss,
     generator_loss,
-    discriminator_loss,
 )
-from utils import plot_spectrogram, scan_checkpoint, load_checkpoint, save_checkpoint
+from utils import load_checkpoint, plot_spectrogram, save_checkpoint, scan_checkpoint
 
 torch.backends.cudnn.benchmark = True
 
@@ -38,7 +40,10 @@ def train(rank, a, h):
         )
 
     torch.cuda.manual_seed(h.seed)
-    device = torch.device("cuda:{:d}".format(rank))
+    if torch.cuda.is_available():
+        device = torch.device("cuda:{:d}".format(rank))
+    else:
+        device = torch.device("cpu")
 
     generator = Generator(h).to(device)
     mpd = MultiPeriodDiscriminator().to(device)

@@ -12,6 +12,13 @@ And move all wav files to `LJSpeech-1.1/wavs`
 
 ## Training
 ```
+sudo apt install -y -q libsndfile-dev
+cd LJSpeech-1.1
+wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+tar xjf LJSpeech-1.1.tar.bz2
+ln -sf LJSpeech-1.1/wavs ./wavs
+cd ..
+
 python train.py --config config_v1.json
 ```
 To train V2 or V3 Generator, replace `config_v1.json` with `config_v2.json` or `config_v3.json`.<br>
